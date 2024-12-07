@@ -1,110 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GENERATOR CONTROL</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-            padding: 10px;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 30px;
-        }
-        .status-indicator {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-left: 10px;
-        }
-        .online {
-            background-color: #28a745; /* Green */
-        }
-        .offline {
-            background-color: #dc3545; /* Red */
-        }
-        button {
-            font-size: 20px;
-            padding: 15px 30px;
-            margin: 10px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .on {
-            background-color: #28a745; /* Green */
-            color: white;
-        }
-        .off {
-            background-color: #dc3545; /* Red */
-            color: white;
-        }
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-        }
-        button:active {
-            transform: translateY(2px);
-            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-        }
-        /* Mobile-friendly responsiveness */
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 20px;
-            }
-            button {
-                font-size: 18px;
-                padding: 12px 25px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <h1>GENERATOR CONTROL</h1>
-    <div>
-        <span>Connection Status:</span>
-        <span id="connection-status" class="status-indicator offline"></span>
-    </div>
-    <button class="on" onclick="toggleLED('off')">GENERATOR ON</button>
-    <button class="off" onclick="toggleLED('on')">GENERATOR OFF</button>
+<html>
+  <head>
+    <title>ESP32 LED Control</title>
+  </head>
+  <body>
+    <h1>ESP32 LED Control</h1>
+    <p>LED is currently: 
+      <span id="ledStatus">Loading...</span>  <!-- Initially displaying Loading -->
+    </p>
+    <button id="ledOnButton">Turn LED On</button>
+    <button id="ledOffButton">Turn LED Off</button>
 
     <script>
-        // Function to toggle LED
-        function toggleLED(state) {
-            fetch(`http://172.20.10.14/led/${state}`)
-                .then(response => response.text())
-                .then(data => alert('LED ' + state));
-        }
+      // Replace with your ESP32 IP address
+      const ESP32_IP = "http://172.20.10.14";  // Replace with your ESP32 IP address
 
-        // Function to check internet connection and update the status indicator
-        function updateConnectionStatus() {
-            const statusIndicator = document.getElementById('connection-status');
+      // Function to update the LED status from the ESP32
+      function updateLEDStatus() {
+        fetch(`${ESP32_IP}/`)  // Request the root page to get the LED state
+          .then(response => response.text())
+          .then(data => {
+            if (data.includes("LED is currently: ON")) {
+              document.getElementById("ledStatus").textContent = "ON";
+            } else if (data.includes("LED is currently: OFF")) {
+              document.getElementById("ledStatus").textContent = "OFF";
+            }
+          })
+          .catch(error => {
+            console.error("Error fetching LED status:", error);
+          });
+      }
 
-            // Try to fetch from a reliable URL (Google here)
-            fetch('https://www.google.com', { mode: 'no-cors' })
-                .then(() => {
-                    statusIndicator.classList.remove('offline');
-                    statusIndicator.classList.add('online');
-                })
-                .catch(() => {
-                    statusIndicator.classList.remove('online');
-                    statusIndicator.classList.add('offline');
-                });
-        }
+      // Add event listeners for the buttons
+      document.getElementById("ledOnButton").addEventListener("click", function () {
+        fetch(`${ESP32_IP}/led/on`)  // Request to turn on the LED
+          .then(response => updateLEDStatus())  // Update LED status after action
+          .catch(error => console.error('Error turning LED on:', error));
+      });
 
-        // Listen for online and offline events to dynamically update connection status
-        window.addEventListener('online', updateConnectionStatus);
-        window.addEventListener('offline', updateConnectionStatus);
+      document.getElementById("ledOffButton").addEventListener("click", function () {
+        fetch(`${ESP32_IP}/led/off`)  // Request to turn off the LED
+          .then(response => updateLEDStatus())  // Update LED status after action
+          .catch(error => console.error('Error turning LED off:', error));
+      });
 
-        // Check connection status when the page loads
-        updateConnectionStatus();
+      // Initially update LED status when the page loads
+      updateLEDStatus();
     </script>
-</body>
+  </body>
 </html>
