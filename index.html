@@ -1,50 +1,29 @@
-<html>
-  <head>
-    <title>ESP32 LED Control</title>
-  </head>
-  <body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control ESP32 LED</title>
+</head>
+<body>
     <h1>ESP32 LED Control</h1>
-    <p>LED is currently: 
-      <span id="ledStatus">Loading...</span>  <!-- Initially displaying Loading -->
-    </p>
-    <button id="ledOnButton">Turn LED On</button>
-    <button id="ledOffButton">Turn LED Off</button>
+    <button onclick="turnOnLED()">Turn On LED</button>
+    <button onclick="turnOffLED()">Turn Off LED</button>
 
     <script>
-      // Replace with your ESP32 IP address
-      const ESP32_IP = "http://172.20.10.14";  // Replace with your ESP32 IP address
+        const ipAddress = "http://172.20.10.14";
 
-      // Function to update the LED status from the ESP32
-      function updateLEDStatus() {
-        fetch(`${ESP32_IP}/`)  // Request the root page to get the LED state
-          .then(response => response.text())
-          .then(data => {
-            if (data.includes("LED is currently: ON")) {
-              document.getElementById("ledStatus").textContent = "ON";
-            } else if (data.includes("LED is currently: OFF")) {
-              document.getElementById("ledStatus").textContent = "OFF";
-            }
-          })
-          .catch(error => {
-            console.error("Error fetching LED status:", error);
-          });
-      }
+        function turnOnLED() {
+            fetch(ipAddress + "/led/on")
+                .then(response => response.text())
+                .then(data => alert(data));
+        }
 
-      // Add event listeners for the buttons
-      document.getElementById("ledOnButton").addEventListener("click", function () {
-        fetch(`${ESP32_IP}/led/on`)  // Request to turn on the LED
-          .then(response => updateLEDStatus())  // Update LED status after action
-          .catch(error => console.error('Error turning LED on:', error));
-      });
-
-      document.getElementById("ledOffButton").addEventListener("click", function () {
-        fetch(`${ESP32_IP}/led/off`)  // Request to turn off the LED
-          .then(response => updateLEDStatus())  // Update LED status after action
-          .catch(error => console.error('Error turning LED off:', error));
-      });
-
-      // Initially update LED status when the page loads
-      updateLEDStatus();
+        function turnOffLED() {
+            fetch(ipAddress + "/led/off")
+                .then(response => response.text())
+                .then(data => alert(data));
+        }
     </script>
-  </body>
+</body>
 </html>
