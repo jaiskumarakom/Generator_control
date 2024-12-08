@@ -11,18 +11,38 @@
     <button onclick="turnOffLED()">Turn Off LED</button>
 
     <script>
-        const ipAddress = "http://172.20.10.14";
+        const ipAddress = "http://172.20.10.14";  // Replace with your actual ESP32 IP address
 
+        // Function to turn on the LED
         function turnOnLED() {
             fetch(ipAddress + "/led/on")
-                .then(response => response.text())
-                .then(data => alert(data));
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(data => alert(data))
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    alert('Failed to turn on the LED');
+                });
         }
 
+        // Function to turn off the LED
         function turnOffLED() {
             fetch(ipAddress + "/led/off")
-                .then(response => response.text())
-                .then(data => alert(data));
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(data => alert(data))
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    alert('Failed to turn off the LED');
+                });
         }
     </script>
 </body>
